@@ -84,7 +84,6 @@ def display_win(text1):
 def display_errors(errors):
     text_bis = "Wrong letters : "
     for i in errors:
-        print(i)
         text_bis += " " + i
     text2 = font1.render(text_bis, True, (255,255,255))
     textRect2 = text2.get_rect()
@@ -109,17 +108,17 @@ def check_letter(win_letters, letter, errors):
             index = win_letters.index(letter)
             fill_text(letter, index)
         else:
-            win += compt
+            win += 1
             temp1 = win_letters.index(letter)
-            print(temp1)
             fill_text(letter, temp1)
             compt -= 1
             while compt != 0:
+                win+=1
                 temp2 = win_letters.index(letter, temp1 + 1)
-                print(temp2)
                 temp1 = temp2
                 fill_text(letter, temp1)
                 compt -= 1
+        return(True)
 
 
 def fill_text(letter, nb):
@@ -132,11 +131,19 @@ def fill_text(letter, nb):
     text = "".join(s)
 
 
-def is_win(word):
+def is_win(word, errors):
     global win
-    if win == len(stock_words()[word]):
-   
-        return()
+    if win == len(stock_words()[word]) *2:
+        text3 = font1.render("YOU WIN", True, (255,255,255))
+        textRect3 = text3.get_rect()
+        textRect3.center = (300, 275)
+        display_surface.blit(text3, textRect3)
+        return(True)
+    elif len(errors) == 9:
+        text3 = font1.render("YOU LOSE", True, (255,255,255))
+        textRect3 = text3.get_rect()
+        textRect3.center = (300, 275)
+        display_surface.blit(text3, textRect3)
 
 pygame.font.init()
 
@@ -154,7 +161,6 @@ word = random_word()
 text = ""
 index = 0
 j = 0
-print(len(stock_words()[word]))
 while j < len(stock_words()[word]):
     text+="_ "
     j+=1
@@ -173,7 +179,13 @@ for i in stock_words()[word]:
     win_letters.append(" ")
 print(win_letters)
 
-while True:
+running = True
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    pygame.display.update()
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN and ((event.unicode >= 'a' and event.unicode <= 'z') or (event.unicode >= 'A' and event.unicode <= 'Z')):
             letter = event.unicode
@@ -182,13 +194,16 @@ while True:
                 display_win(text1)
                 display_errors(errors)
                 draw_lines(errors)
-            else:
+                is_win(word, errors)
+            elif  check_letter(win_letters, letter, errors) == True:
+                print(win)
                 display_surface.fill((0, 0, 0))
                 display_win(text1)
                 display_errors(errors)
                 draw_lines(errors)
-    for event in pygame.event.get():
-	    if event.type == pygame.QUIT:
-		    pygame.quit()
-		    quit()
-	    pygame.display.update()
+                is_win(word, errors)
+        
+
+
+pygame.quit()
+
