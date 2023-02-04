@@ -2,6 +2,7 @@
 import pygame
 from pygame.locals import *
 import random
+import os
 
 def draw_lines(errors):
     if len(errors) < 10:
@@ -59,6 +60,7 @@ def draw_lines(errors):
             pygame.draw.line(display_surface, (255,255,255), (200,270),(175,230),8)
             pygame.draw.line(display_surface, (255,255,255), (150,270),(175,230),8)
             pygame.draw.line(display_surface, (255,255,255), (200,370),(175,320),8)
+    pygame.display.update()
 
 
 
@@ -80,6 +82,7 @@ def display_win(text1):
     textRect1 = text1.get_rect()
     textRect1.center = (275, 70)
     display_surface.blit(text1, textRect1)
+    pygame.display.update()
 
 def display_errors(errors):
     text_bis = "Wrong letters : "
@@ -89,6 +92,7 @@ def display_errors(errors):
     textRect2 = text2.get_rect()
     textRect2.center = (275, 120)
     display_surface.blit(text2, textRect2)
+    pygame.display.update()
 
 def check_letter(win_letters, letter, errors):
     global index
@@ -131,7 +135,7 @@ def fill_text(letter, nb):
     text = "".join(s)
 
 
-def is_win(word, errors):
+def is_win(word, errors, running):
     global win
     if win == len(stock_words()[word]) *2:
         text3 = font1.render("YOU WIN", True, (255,255,255))
@@ -144,14 +148,30 @@ def is_win(word, errors):
         textRect3 = text3.get_rect()
         textRect3.center = (300, 275)
         display_surface.blit(text3, textRect3)
+        text4 = font1.render(stock_words()[word], True, (255,255,255))
+        textRect4 = text4.get_rect()
+        textRect4.center = (300, 320)
+        display_surface.blit(text4, textRect4)
+        return(False)
+
+
+def display():
+    display_surface.fill((0, 0, 0))
+    title = font1.render("PENDU", True, (255,255,255))
+    titleRect = title.get_rect()
+    titleRect.center = (270, 20)
+    display_surface.blit(title, titleRect)
+    pygame.display.update()
+
 
 pygame.font.init()
-
+pygame.init()
 pygame.font.get_init()
 
 display_surface = pygame.display.set_mode((550, 550))
-display_surface.fill((0, 0, 0))
+time = pygame.time.Clock()
 font1 = pygame.font.SysFont('freesanbold.ttf', 50)
+display()
 
 
 
@@ -177,7 +197,6 @@ i = 0
 for i in stock_words()[word]:
     win_letters.append(i)
     win_letters.append(" ")
-print(win_letters)
 
 running = True
 
@@ -185,25 +204,33 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+            pygame.quit()
+            exit()
     pygame.display.update()
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN and ((event.unicode >= 'a' and event.unicode <= 'z') or (event.unicode >= 'A' and event.unicode <= 'Z')):
             letter = event.unicode
+            pygame.display.update()
             if check_letter(win_letters, letter, errors) == False:
-                display_surface.fill((0, 0, 0))
+                display()
                 display_win(text1)
                 display_errors(errors)
                 draw_lines(errors)
-                is_win(word, errors)
+                is_win(word, errors, running)
+                pygame.display.update()
             elif  check_letter(win_letters, letter, errors) == True:
-                print(win)
-                display_surface.fill((0, 0, 0))
+                display()
                 display_win(text1)
                 display_errors(errors)
                 draw_lines(errors)
-                is_win(word, errors)
-        
-
+                is_win(word, errors, running)
+                pygame.display.update()
+            if is_win(word, errors, running) == False:
+                running = False
+            else:
+                running = False
+    time.tick(10000000000)
+    pygame.display.update()
 
 pygame.quit()
 
